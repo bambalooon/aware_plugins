@@ -44,6 +44,9 @@ public class Plugin extends Aware_Plugin {
     private Timer _currentTimer;
     private Timer _5DayTimer;
     private Timer _14DayTimer;
+    private long _currentWeatherLastCall;
+    private long _5dayWeatherLastCall;
+    private long _14dayWeatherLastCall;
 
     // Retrieve the weather information at the current location. Retrieval every 30 minutes.
 
@@ -133,46 +136,23 @@ public class Plugin extends Aware_Plugin {
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
 
-
-        final String currWthEnabledText = Aware.getSetting(contentResolver, ENABLED_WEATHER_CURRENT);
-        final boolean currWthEnabled = currWthEnabledText.length() == 0
-                ? DEFAULT_ENABLED_CURRENT
-                : TRUE_STATEMENT.equalsIgnoreCase(currWthEnabledText);
-
-        final String _5daysWthEnabledText = Aware.getSetting(contentResolver, ENABLED_WEATHER_5DAYS);
-        final boolean _5daysWthEnabled = _5daysWthEnabledText.length() == 0
-                ? DEFAULT_ENABLED_5DAYS
-                : TRUE_STATEMENT.equalsIgnoreCase(_5daysWthEnabledText);
-
-
-        final String _14daysWthEnabledText = Aware.getSetting(contentResolver, ENABLED_WEATHER_14DAYS);
-        final boolean _14daysWthEnabled = _14daysWthEnabledText.length() == 0
-                ? DEFAULT_ENABLED_14DAYS
-                : TRUE_STATEMENT.equalsIgnoreCase(_14daysWthEnabledText);
-
-        if(currWthEnabled) {
-            final String currWthFqText = Aware.getSetting(contentResolver, FREQUENCY_WEATHER_CURRENT);
-            final int currWthFq = currWthFqText.length() == 0
-                    ? DEFAULT_FREQUENCY_CURRENT
-                    : Integer.parseInt(currWthFqText);
+        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_CURRENT, DEFAULT_ENABLED_CURRENT)) {
+            final int currWthFq =
+                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_CURRENT, DEFAULT_FREQUENCY_CURRENT);
             _currentTimer = new Timer();
             _currentTimer.schedule(weatherCurrentQuery, 0, SECOND * currWthFq);
         }
 
-        if(_5daysWthEnabled) {
-            final String _5daysWthFqText = Aware.getSetting(contentResolver, FREQUENCY_WEATHER_5DAYS);
-            final int _5daysWthFq = _5daysWthFqText.length() == 0
-                    ? DEFAULT_FREQUENCY_5DAYS
-                    : Integer.parseInt(_5daysWthFqText);
+        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_5DAYS, DEFAULT_ENABLED_5DAYS)) {
+            final int _5daysWthFq =
+                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_5DAYS, DEFAULT_FREQUENCY_5DAYS);
             _5DayTimer = new Timer();
             _5DayTimer.schedule(weather5DayQuery, 0, SECOND * _5daysWthFq);
         }
 
-        if(_14daysWthEnabled) {
-            final String _14daysWthFqText = Aware.getSetting(contentResolver, FREQUENCY_WEATHER_14DAYS);
-            final int _14daysWthFq = _14daysWthFqText.length() == 0
-                    ? DEFAULT_FREQUENCY_14DAYS
-                    : Integer.parseInt(_14daysWthFqText);
+        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_14DAYS, DEFAULT_ENABLED_14DAYS)) {
+            final int _14daysWthFq =
+                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_14DAYS, DEFAULT_FREQUENCY_14DAYS);
             _14DayTimer = new Timer();
             _14DayTimer.schedule(weather14DayQuery, 0, SECOND * _14daysWthFq);
         }
@@ -194,6 +174,26 @@ public class Plugin extends Aware_Plugin {
         this._5DayTimer.cancel();
         this._14DayTimer.cancel();
         getApplicationContext().unregisterReceiver(networkChangeReceiver);
+    }
+
+    private boolean isWeatherUpdateEnabled(ContentResolver contentResolver,
+                                           String enabledWeatherSetting,
+                                           boolean defaultWeatherSetting) {
+
+        final String wthEnabledText = Aware.getSetting(contentResolver, enabledWeatherSetting);
+        return wthEnabledText.length() == 0
+                ? defaultWeatherSetting
+                : TRUE_STATEMENT.equalsIgnoreCase(wthEnabledText);
+    }
+
+    private int getWeatherUpdateFrequency(ContentResolver contentResolver,
+                                          String frequencyWeatherSetting,
+                                          int defaultFrequencySetting) {
+
+        final String currWthFqText = Aware.getSetting(contentResolver, frequencyWeatherSetting);
+        return currWthFqText.length() == 0
+                ? defaultFrequencySetting
+                : Integer.parseInt(currWthFqText);
     }
 
 }
