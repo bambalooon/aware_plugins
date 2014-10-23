@@ -12,6 +12,8 @@ import com.aware.Aware;
 
 
 public class Settings extends Activity {
+    public static final String ACTION_WEATHER_REFRESH = Settings.class.getName() + ".ACTION_WEATHER_REFRESH";
+
     public static final String ENABLED_WEATHER_CURRENT = Settings.class.getName() + ".ENABLED_WEATHER_CURRENT";
     public static final String ENABLED_WEATHER_5DAYS = Settings.class.getName() + ".ENABLED_WEATHER_5DAYS";
     public static final String ENABLED_WEATHER_14DAYS = Settings.class.getName() + ".ENABLED_WEATHER_14DAYS";
@@ -65,6 +67,8 @@ public class Settings extends Activity {
 
                 Intent awareRefresh = new Intent(Aware.ACTION_AWARE_REFRESH);
                 sendBroadcast(awareRefresh);
+                Intent weatherRefresh = new Intent(ACTION_WEATHER_REFRESH);
+                sendBroadcast(weatherRefresh);
                 finish();
             }
         });

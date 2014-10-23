@@ -44,9 +44,6 @@ public class Plugin extends Aware_Plugin {
     private Timer _currentTimer;
     private Timer _5DayTimer;
     private Timer _14DayTimer;
-    private long _currentWeatherLastCall;
-    private long _5dayWeatherLastCall;
-    private long _14dayWeatherLastCall;
 
     // Retrieve the weather information at the current location. Retrieval every 30 minutes.
 
@@ -93,11 +90,17 @@ public class Plugin extends Aware_Plugin {
                 info = networkInfo.isConnected()
                         ? networkInfo.getTypeName() + " connected!"
                         : "Connecting to " + networkInfo.getTypeName();
-            }
-            else {
+            } else {
                 info = "Network disconnected!";
             }
             Toast.makeText(context, info, Toast.LENGTH_LONG).show();
+        }
+    };
+
+    private BroadcastReceiver weatherSettingsChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            startWeatherUpdateTimers();
         }
     };
 
@@ -136,29 +139,12 @@ public class Plugin extends Aware_Plugin {
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
 
-        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_CURRENT, DEFAULT_ENABLED_CURRENT)) {
-            final int currWthFq =
-                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_CURRENT, DEFAULT_FREQUENCY_CURRENT);
-            _currentTimer = new Timer();
-            _currentTimer.schedule(weatherCurrentQuery, 0, SECOND * currWthFq);
-        }
+        startWeatherUpdateTimers();
 
-        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_5DAYS, DEFAULT_ENABLED_5DAYS)) {
-            final int _5daysWthFq =
-                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_5DAYS, DEFAULT_FREQUENCY_5DAYS);
-            _5DayTimer = new Timer();
-            _5DayTimer.schedule(weather5DayQuery, 0, SECOND * _5daysWthFq);
-        }
-
-        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_14DAYS, DEFAULT_ENABLED_14DAYS)) {
-            final int _14daysWthFq =
-                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_14DAYS, DEFAULT_FREQUENCY_14DAYS);
-            _14DayTimer = new Timer();
-            _14DayTimer.schedule(weather14DayQuery, 0, SECOND * _14daysWthFq);
-        }
-
-        IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
-        getApplicationContext().registerReceiver(networkChangeReceiver, intentFilter);
+        IntentFilter networkChangeIntent = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        getApplicationContext().registerReceiver(networkChangeReceiver, networkChangeIntent);
+        IntentFilter settingsChangeIntent = new IntentFilter(ACTION_WEATHER_REFRESH);
+        getApplicationContext().registerReceiver(weatherSettingsChangeReceiver, settingsChangeIntent);
     }
 
     @Override
@@ -174,6 +160,43 @@ public class Plugin extends Aware_Plugin {
         this._5DayTimer.cancel();
         this._14DayTimer.cancel();
         getApplicationContext().unregisterReceiver(networkChangeReceiver);
+        getApplicationContext().unregisterReceiver(weatherSettingsChangeReceiver);
+    }
+
+    private void startWeatherUpdateTimers() {
+        ContentResolver contentResolver = getContentResolver();
+        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_CURRENT, DEFAULT_ENABLED_CURRENT)) {
+            final int currWthFq =
+                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_CURRENT, DEFAULT_FREQUENCY_CURRENT);
+            if(_currentTimer != null) {
+                _currentTimer.cancel();
+            }
+            _currentTimer = new Timer();
+            weatherCurrentQuery = new Weather_Current_Query();
+            _currentTimer.schedule(weatherCurrentQuery, 0, SECOND * currWthFq);
+        }
+
+        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_5DAYS, DEFAULT_ENABLED_5DAYS)) {
+            final int _5daysWthFq =
+                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_5DAYS, DEFAULT_FREQUENCY_5DAYS);
+            if(_5DayTimer != null) {
+                _5DayTimer.cancel();
+            }
+            _5DayTimer = new Timer();
+            weather5DayQuery = new Weather_5Day_Query();
+            _5DayTimer.schedule(weather5DayQuery, 0, SECOND * _5daysWthFq);
+        }
+
+        if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_14DAYS, DEFAULT_ENABLED_14DAYS)) {
+            final int _14daysWthFq =
+                    getWeatherUpdateFrequency(contentResolver, FREQUENCY_WEATHER_14DAYS, DEFAULT_FREQUENCY_14DAYS);
+            if(_14DayTimer != null) {
+                _14DayTimer.cancel();
+            }
+            _14DayTimer = new Timer();
+            weather14DayQuery = new Weather_14Day_Query();
+            _14DayTimer.schedule(weather14DayQuery, 0, SECOND * _14daysWthFq);
+        }
     }
 
     private boolean isWeatherUpdateEnabled(ContentResolver contentResolver,
