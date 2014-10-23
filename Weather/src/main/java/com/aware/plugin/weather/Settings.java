@@ -26,8 +26,8 @@ public class Settings extends Activity {
     public static final boolean DEFAULT_ENABLED_CURRENT = true;
     public static final boolean DEFAULT_ENABLED_5DAYS = true;
     public static final boolean DEFAULT_ENABLED_14DAYS = true;
-    public static final int DEFAULT_FREQUENCY_CURRENT = HOUR/2;
-    public static final int DEFAULT_FREQUENCY_5DAYS = HOUR;
+    public static final int DEFAULT_FREQUENCY_CURRENT = HOUR/4;
+    public static final int DEFAULT_FREQUENCY_5DAYS = 2*HOUR;
     public static final int DEFAULT_FREQUENCY_14DAYS = 12*HOUR;
 
 
