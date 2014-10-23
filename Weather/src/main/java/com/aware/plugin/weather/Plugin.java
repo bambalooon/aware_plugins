@@ -1,9 +1,6 @@
 package com.aware.plugin.weather;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -18,6 +15,8 @@ import com.aware.utils.Aware_Plugin;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.aware.plugin.weather.Settings.*;
 
 /*
  *  TO-DO: Settings dialog to change retrieval frequency.
@@ -120,27 +119,63 @@ public class Plugin extends Aware_Plugin {
 
         if (Aware.DEBUG) Log.e("Weather Plugin", "Plugin Started");
 
-        String deviceID = Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID);
+        final ContentResolver contentResolver = getContentResolver();
+        String deviceID = Aware.getSetting(contentResolver, Aware_Preferences.DEVICE_ID);
 
         WeatherCollector = new Weather_Connector_OpenWeatherMap(true, true, true, this, deviceID);
         weatherPlaces = new Weather_Places(this);
 
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_LOCATION_NETWORK, true);
-        Aware.setSetting(getContentResolver(), Aware_Preferences.FREQUENCY_NETWORK, 300);
-        Aware.setSetting(getContentResolver(), Aware_Preferences.MIN_NETWORK_ACCURACY, 1500);
-        Aware.setSetting(getContentResolver(), Aware_Preferences.EXPIRATION_TIME, 300);
+        Aware.setSetting(contentResolver, Aware_Preferences.STATUS_LOCATION_NETWORK, true);
+        Aware.setSetting(contentResolver, Aware_Preferences.FREQUENCY_NETWORK, 300);
+        Aware.setSetting(contentResolver, Aware_Preferences.MIN_NETWORK_ACCURACY, 1500);
+        Aware.setSetting(contentResolver, Aware_Preferences.EXPIRATION_TIME, 300);
 
         Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
         sendBroadcast(applySettings);
 
-        _currentTimer = new Timer();
-        _currentTimer.schedule(weatherCurrentQuery, 0, 1800000);
 
-        _5DayTimer = new Timer();
-        _5DayTimer.schedule(weather5DayQuery, 60000, 3600000);
+        final String currWthEnabledText = Aware.getSetting(contentResolver, ENABLED_WEATHER_CURRENT);
+        final boolean currWthEnabled = currWthEnabledText.length() == 0
+                ? DEFAULT_ENABLED_CURRENT
+                : TRUE_STATEMENT.equalsIgnoreCase(currWthEnabledText);
 
-        _14DayTimer = new Timer();
-        _14DayTimer.schedule(weather14DayQuery, 120000, 43200000);
+        final String _5daysWthEnabledText = Aware.getSetting(contentResolver, ENABLED_WEATHER_5DAYS);
+        final boolean _5daysWthEnabled = _5daysWthEnabledText.length() == 0
+                ? DEFAULT_ENABLED_5DAYS
+                : TRUE_STATEMENT.equalsIgnoreCase(_5daysWthEnabledText);
+
+
+        final String _14daysWthEnabledText = Aware.getSetting(contentResolver, ENABLED_WEATHER_14DAYS);
+        final boolean _14daysWthEnabled = _14daysWthEnabledText.length() == 0
+                ? DEFAULT_ENABLED_14DAYS
+                : TRUE_STATEMENT.equalsIgnoreCase(_14daysWthEnabledText);
+
+        if(currWthEnabled) {
+            final String currWthFqText = Aware.getSetting(contentResolver, FREQUENCY_WEATHER_CURRENT);
+            final int currWthFq = currWthFqText.length() == 0
+                    ? DEFAULT_FREQUENCY_CURRENT
+                    : Integer.parseInt(currWthFqText);
+            _currentTimer = new Timer();
+            _currentTimer.schedule(weatherCurrentQuery, 0, SECOND * currWthFq);
+        }
+
+        if(_5daysWthEnabled) {
+            final String _5daysWthFqText = Aware.getSetting(contentResolver, FREQUENCY_WEATHER_5DAYS);
+            final int _5daysWthFq = _5daysWthFqText.length() == 0
+                    ? DEFAULT_FREQUENCY_5DAYS
+                    : Integer.parseInt(_5daysWthFqText);
+            _5DayTimer = new Timer();
+            _5DayTimer.schedule(weather5DayQuery, 0, SECOND * _5daysWthFq);
+        }
+
+        if(_14daysWthEnabled) {
+            final String _14daysWthFqText = Aware.getSetting(contentResolver, FREQUENCY_WEATHER_14DAYS);
+            final int _14daysWthFq = _14daysWthFqText.length() == 0
+                    ? DEFAULT_FREQUENCY_14DAYS
+                    : Integer.parseInt(_14daysWthFqText);
+            _14DayTimer = new Timer();
+            _14DayTimer.schedule(weather14DayQuery, 0, SECOND * _14daysWthFq);
+        }
 
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         getApplicationContext().registerReceiver(networkChangeReceiver, intentFilter);

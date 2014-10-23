@@ -1,5 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Weather</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="curr_weather_update_enabled">Current weather update</string>
+    <string name="current_weather_update_frequency">Current weather update frequency [s]</string>
+    <string name="days5_weather_update_enabled">5 days weather update</string>
+    <string name="days5_weather_frequency_update">5 days update frequency [s]</string>
+    <string name="days14_weather_update_enabled">14 days weather update</string>
+    <string name="days14_weather_frequency_update">14 days weather update frequency [s]</string>
+    <string name="save_button_text">Save</string>
 
 </resources>

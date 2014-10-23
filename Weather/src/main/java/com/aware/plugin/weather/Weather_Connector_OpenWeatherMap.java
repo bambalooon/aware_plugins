@@ -1,11 +1,13 @@
 package com.aware.plugin.weather;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Vector;
-
+import android.content.Context;
 import android.content.Intent;
+import android.net.http.AndroidHttpClient;
+import android.os.AsyncTask;
 import android.util.Log;
+import com.aware.plugin.weather.Weather_Provider.Weather14Day;
+import com.aware.plugin.weather.Weather_Provider.Weather5Day;
+import com.aware.plugin.weather.Weather_Provider.WeatherCurrent;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
@@ -13,27 +15,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.net.http.AndroidHttpClient;
-import android.os.AsyncTask;
-
-import com.aware.plugin.weather.Weather_Provider.Weather14Day;
-import com.aware.plugin.weather.Weather_Provider.Weather5Day;
-import com.aware.plugin.weather.Weather_Provider.WeatherCurrent;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Vector;
 
 public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 
-	public static final int QUERY_CURRENT = 0;
-	public static final int QUERY_5DAY = 1;
-	public static final int QUERY_14DAY = 2;
-	public static final String WEATHER_AUTHORITY = "openweathermap.org";	
-	
-	private boolean WEATHER_CURRENT_AVAILABLE = false;
-	private boolean WEATHER_5DAY_AVAILABLE = false;
-	private boolean WEATHER_14DAY_AVAILABLE = false;	
-	
-	private int lastQuery;
-	
+    public static final int QUERY_CURRENT = 0;
+    public static final int QUERY_5DAY = 1;
+    public static final int QUERY_14DAY = 2;
+	public static final String WEATHER_AUTHORITY = "openweathermap.org";
+
+    private boolean WEATHER_CURRENT_AVAILABLE = false;
+    private boolean WEATHER_5DAY_AVAILABLE = false;
+	private boolean WEATHER_14DAY_AVAILABLE = false;
+
 	private Context appContext;
 	private String deviceID;
 	
@@ -42,19 +38,17 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 		WEATHER_5DAY_AVAILABLE = weather5Day;
 		WEATHER_14DAY_AVAILABLE = weather14Day;
 		
-		lastQuery = -1;
-		
 		this.setAppContext(appContext);
 		this.setDeviceID(deviceId);
 	}
 	
 
-	public void readJsonStream(String jsonString,double lat, double lng) throws IOException {
+	public void readJsonStream(String jsonString,double lat, double lng, int lastQuery) throws IOException {
 			 
 		/*
 		 *  The OpenWeatherMap JSON string is differently formated depending on the mode
 		 */
-		
+
 		switch(lastQuery) {
 		
 		case Weather_Connector_OpenWeatherMap.QUERY_CURRENT:
@@ -85,7 +79,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 			}
 			
 			break;		
-		}		
+		}
 	}
 
 	private void parse14DayWeather(JSONObject response,double lat, double lng) {				
@@ -260,13 +254,14 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 				}						
 				currentWeather.setWeatherDescriptions(weatherDescriptions);
 						
-				
+
 				appContext.getContentResolver().insert(Weather14Day.CONTENT_URI,currentWeather.getContentValues());
-				
+
 //				Log.e("Weather Plugin","Weather Information Saved");
 			}					
-		}			
-	}
+		}
+        Log.d(Plugin.TAG, Plugin.ACTION_AWARE_WEATHER+": 14 Day Weather Added");
+    }
 	
 	private void parse5DayWeather(JSONObject response,double lat, double lng) {				
 		
@@ -469,11 +464,11 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 				currentWeather.setWeatherDescriptions(weatherDescriptions);						
 				
 				appContext.getContentResolver().insert(Weather5Day.CONTENT_URI,currentWeather.getContentValues());
-				
-//				Log.e("Weather Plugin","Weather Information Saved");							
-			}		
-		}
-			
+
+//				Log.e("Weather Plugin","Weather Information Saved");
+			}
+        }
+        Log.d(Plugin.TAG, Plugin.ACTION_AWARE_WEATHER+": 5 Day Weather Added");
 	}
 	
 	private void parseCurrentWeather(JSONObject current,double lat, double lng) {
@@ -684,6 +679,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 	        String link = params[0];
 	        Double lat = Double.valueOf(params[1]);
 	        Double lng = Double.valueOf(params[2]);
+            int lastQuery = Integer.valueOf(params[3]);
 	        HttpGet request = new HttpGet(link);
 	        AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
 	        try {
@@ -695,7 +691,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 	            }
 	            
 	    		String jsonString = EntityUtils.toString(response.getEntity());
-	            readJsonStream(jsonString,lat,lng);
+	            readJsonStream(jsonString,lat,lng,lastQuery);
 	            
 	        } catch (IOException e) {
 //	            e.printStackTrace();
@@ -712,14 +708,15 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 	@Override
 	public void getWeatherCurrent(double[] latitudeList,
 			double[] longitudeList) {
-		
-		lastQuery = Weather_Connector_OpenWeatherMap.QUERY_CURRENT;
-		String[] params = new String[3];
+
+        int lastQuery = Weather_Connector_OpenWeatherMap.QUERY_CURRENT;
+		String[] params = new String[4];
 		
 		for(int i=0;i<latitudeList.length;i++) {
 			params[0] = "http://api.openweathermap.org/data/2.5/weather?lat=" + latitudeList[i] + "&lon=" + longitudeList[i] + "&units=imperial&mode=json";
 			params[1] = "" + latitudeList[i];
 			params[2] = "" + longitudeList[i];
+            params[3] = "" + lastQuery;
 			
 			new NetworkTask().execute(params);
 		}
@@ -729,15 +726,16 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 	@Override
 	public void getWeather5Day(double[] latitudeList,
 			double[] longitudeList) {
-		
-		lastQuery = Weather_Connector_OpenWeatherMap.QUERY_5DAY;
-		String[] params = new String[3];
+
+        int lastQuery = Weather_Connector_OpenWeatherMap.QUERY_5DAY;
+		String[] params = new String[4];
 		
 		for(int i=0;i<latitudeList.length;i++) {
 			params[0] = "http://api.openweathermap.org/data/2.5/forecast?lat=" + latitudeList[i] + "&lon=" + longitudeList[i] + "&units=imperial&mode=json";
 			params[1] = "" + latitudeList[i];
 			params[2] = "" + longitudeList[i];
-			
+			params[3] = "" + lastQuery;
+
 			new NetworkTask().execute(params);
 		}
 	}
@@ -745,15 +743,16 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 	@Override
 	public void getWeather14Day(double[] latitudeList,
 			double[] longitudeList) {
-		
-		lastQuery = Weather_Connector_OpenWeatherMap.QUERY_14DAY;
-		String[] params = new String[3];
+
+        int lastQuery = Weather_Connector_OpenWeatherMap.QUERY_14DAY;
+		String[] params = new String[4];
 		
 		for(int i=0;i<latitudeList.length;i++) {
 			params[0] = "http://api.openweathermap.org/data/2.5/forecast/daily?lat=" + latitudeList[i] + "&lon=" + longitudeList[i] + "&units=imperial&mode=json&cnt=14";
 			params[1] = "" + latitudeList[i];
 			params[2] = "" + longitudeList[i];
-			
+			params[3] = "" + lastQuery;
+
 			new NetworkTask().execute(params);
 		}		
 	}
