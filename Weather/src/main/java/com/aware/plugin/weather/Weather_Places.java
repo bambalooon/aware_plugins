@@ -37,7 +37,7 @@ public class Weather_Places {
 		double currentLatitude = 0;
 		double currentLongitude = 0;
 		long lastTimestamp = 0;
-		
+
 		if( locationResult != null && locationResult.moveToFirst()) {
 			do {				
 				currentLatitude = locationResult.getDouble(locationResult.getColumnIndex(Locations_Data.LATITUDE));
@@ -63,18 +63,19 @@ public class Weather_Places {
 			
 			latitudeList[0] = currentLatitude;
 			longitudeList[0] = currentLongitude;
-			
-			if(!Aware.getSetting(appContext.getContentResolver(), Aware_Preferences.STATUS_LOCATION_NETWORK).equals("true")) {
-	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.STATUS_LOCATION_NETWORK, true);
-	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.FREQUENCY_NETWORK, 300);
-	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.MIN_NETWORK_ACCURACY, 1500);
-	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.EXPIRATION_TIME, 300);
-	        	
-	        	Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
-	        	appContext.sendBroadcast(applySettings);
-	        	
-	        	Log.e("Weather Plugin","Location Preferences Updated");
-	        }						
+
+            //TODO: enable fused location after integration
+//			if(!Aware.getSetting(appContext.getContentResolver(), Aware_Preferences.STATUS_LOCATION_NETWORK).equals("true")) {
+//	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.STATUS_LOCATION_NETWORK, true);
+//	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.FREQUENCY_NETWORK, 300);
+//	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.MIN_NETWORK_ACCURACY, 1500);
+//	        	Aware.setSetting(appContext.getContentResolver(), Aware_Preferences.EXPIRATION_TIME, 300);
+//
+//	        	Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
+//	        	appContext.sendBroadcast(applySettings);
+//
+//	        	Log.e("Weather Plugin","Location Preferences Updated");
+//	        }
 		}
 	}	
 	
