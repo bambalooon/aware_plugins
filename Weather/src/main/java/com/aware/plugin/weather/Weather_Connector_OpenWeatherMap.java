@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
 
 public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
@@ -32,7 +33,11 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 
 	private Context appContext;
 	private String deviceID;
-	
+
+    private long lastCurrentWeatherCall;
+    private long last5DaysWeatherCall;
+    private long last14DaysWeatherCall;
+
 	public Weather_Connector_OpenWeatherMap(boolean weatherCurrent,boolean weather5Day,boolean weather14Day,Context appContext,String deviceId) {
 		WEATHER_CURRENT_AVAILABLE = weatherCurrent;
 		WEATHER_5DAY_AVAILABLE = weather5Day;
@@ -260,6 +265,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 //				Log.e("Weather Plugin","Weather Information Saved");
 			}					
 		}
+        last14DaysWeatherCall = new Date().getTime();
         Log.d(Plugin.TAG, Plugin.ACTION_AWARE_WEATHER+": 14 Day Weather Added");
     }
 	
@@ -468,6 +474,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 //				Log.e("Weather Plugin","Weather Information Saved");
 			}
         }
+        last5DaysWeatherCall = new Date().getTime();
         Log.d(Plugin.TAG, Plugin.ACTION_AWARE_WEATHER+": 5 Day Weather Added");
 	}
 	
@@ -639,6 +646,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 		
 		appContext.getContentResolver().insert(WeatherCurrent.CONTENT_URI, currentWeather.getContentValues());
         appContext.sendBroadcast(generateWeatherNotification(currentWeather));
+        lastCurrentWeatherCall = new Date().getTime();
         Log.d(Plugin.TAG, Plugin.ACTION_AWARE_WEATHER+": CurrentWeather Notification");
 
 //		Log.e("Weather Plugin","Weather Information Saved");
@@ -796,5 +804,20 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 	public void setDeviceID(String deviceID) {
 		this.deviceID = deviceID;
 	}
+
+    @Override
+    public long getLastCurrentWeatherCall() {
+        return lastCurrentWeatherCall;
+    }
+
+    @Override
+    public long getLast5DaysWeatherCall() {
+        return last5DaysWeatherCall;
+    }
+
+    @Override
+    public long getLast14DaysWeatherCall() {
+        return last14DaysWeatherCall;
+    }
 
 }

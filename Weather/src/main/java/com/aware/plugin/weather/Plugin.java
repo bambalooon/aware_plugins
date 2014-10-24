@@ -5,7 +5,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 import com.aware.plugin.weather.Weather_Provider.Weather14Day;
@@ -13,6 +12,7 @@ import com.aware.plugin.weather.Weather_Provider.Weather5Day;
 import com.aware.plugin.weather.Weather_Provider.WeatherCurrent;
 import com.aware.utils.Aware_Plugin;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -85,15 +85,46 @@ public class Plugin extends Aware_Plugin {
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-            final String info;
             if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
-                info = networkInfo.isConnected()
-                        ? networkInfo.getTypeName() + " connected!"
-                        : "Connecting to " + networkInfo.getTypeName();
-            } else {
-                info = "Network disconnected!";
+                final ContentResolver contentResolver = context.getContentResolver();
+                final long now = new Date().getTime();
+                if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_CURRENT, DEFAULT_ENABLED_CURRENT)) {
+                    int currFq = getWeatherUpdateFrequency
+                            (contentResolver, FREQUENCY_WEATHER_CURRENT, DEFAULT_FREQUENCY_CURRENT);
+                    if((now - WeatherCollector.getLastCurrentWeatherCall())/SECOND >= currFq) {
+                        if(_currentTimer != null) {
+                            _currentTimer.cancel();
+                        }
+                        _currentTimer = new Timer();
+                        weatherCurrentQuery = new Weather_Current_Query();
+                        _currentTimer.schedule(weatherCurrentQuery, 0, SECOND * currFq);
+                    }
+                }
+                if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_5DAYS, DEFAULT_ENABLED_5DAYS)) {
+                    int _5dFq = getWeatherUpdateFrequency
+                            (contentResolver, FREQUENCY_WEATHER_5DAYS, DEFAULT_FREQUENCY_5DAYS);
+                    if((now - WeatherCollector.getLast5DaysWeatherCall())/SECOND >= _5dFq) {
+                        if(_5DayTimer != null) {
+                            _5DayTimer.cancel();
+                        }
+                        _5DayTimer = new Timer();
+                        weather5DayQuery = new Weather_5Day_Query();
+                        _5DayTimer.schedule(weather5DayQuery, 0, SECOND * _5dFq);
+                    }
+                }
+                if(isWeatherUpdateEnabled(contentResolver, ENABLED_WEATHER_14DAYS, DEFAULT_ENABLED_14DAYS)) {
+                    int _14dFq = getWeatherUpdateFrequency
+                            (contentResolver, FREQUENCY_WEATHER_14DAYS, DEFAULT_FREQUENCY_14DAYS);
+                    if((now - WeatherCollector.getLast14DaysWeatherCall())/SECOND >= _14dFq) {
+                        if(_14DayTimer != null) {
+                            _14DayTimer.cancel();
+                        }
+                        _14DayTimer = new Timer();
+                        weather14DayQuery = new Weather_14Day_Query();
+                        _14DayTimer.schedule(weather14DayQuery, 0, SECOND * _14dFq);
+                    }
+                }
             }
-            Toast.makeText(context, info, Toast.LENGTH_LONG).show();
         }
     };
 

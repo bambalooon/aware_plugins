@@ -57,4 +57,8 @@ public interface Weather_Connector {
 	public void getWeatherCurrent(double[] latitudeList, double[] longitudeList);
 	public void getWeather5Day(double[] latitudeList, double[] longitudeList);
 	public void getWeather14Day(double[] latitudeList, double[] longitudeList);
+
+    public long getLastCurrentWeatherCall();
+    public long getLast5DaysWeatherCall();
+    public long getLast14DaysWeatherCall();
 }
