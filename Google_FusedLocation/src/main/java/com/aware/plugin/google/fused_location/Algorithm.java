@@ -51,7 +51,6 @@ public class Algorithm extends IntentService {
             locationEvent.putExtra(Locations_Data.BEARING, bestLocation.getBearing());
             locationEvent.putExtra(Locations_Data.SPEED, bestLocation.getSpeed());
             locationEvent.putExtra(Locations_Data.ALTITUDE, bestLocation.getAltitude());
-            locationEvent.putExtra(Locations_Data.PROVIDER, bestLocation.getProvider());
             locationEvent.putExtra(Locations_Data.ACCURACY, bestLocation.getAccuracy());
             sendBroadcast(locationEvent);
         }
