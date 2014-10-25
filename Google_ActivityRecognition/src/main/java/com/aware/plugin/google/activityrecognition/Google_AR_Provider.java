@@ -101,6 +101,7 @@ public class Google_AR_Provider extends ContentProvider {
                     if(database.inTransaction()) {
                         database.endTransaction();
                     }
+                    database.close();
                 }
                 break;
             default:
@@ -153,6 +154,7 @@ public class Google_AR_Provider extends ContentProvider {
                     if(database.inTransaction()) {
                         database.endTransaction();
                     }
+                    database.close();
                 }
                 throw new SQLException("Failed to insert row into " + uri);
             default:
@@ -222,6 +224,11 @@ public class Google_AR_Provider extends ContentProvider {
                 Log.e(Aware.TAG, e.getMessage());
 
             return null;
+        } finally {
+            if(database.inTransaction()) {
+                database.endTransaction();
+            }
+            database.close();
         }
     }
 
@@ -243,6 +250,7 @@ public class Google_AR_Provider extends ContentProvider {
                     if(database.inTransaction()) {
                         database.endTransaction();
                     }
+                    database.close();
                 }
                 break;
             default:
