@@ -45,6 +45,14 @@ public class Algorithm extends IntentService {
             if( DEBUG ) Log.d("AWARE::Google Fused Location", "Fused location:" + rowData.toString());
             
             Intent locationEvent = new Intent(Plugin.ACTION_AWARE_LOCATIONS);
+            locationEvent.putExtra(Locations_Data.TIMESTAMP, System.currentTimeMillis());
+            locationEvent.putExtra(Locations_Data.LATITUDE, bestLocation.getLatitude());
+            locationEvent.putExtra(Locations_Data.LONGITUDE, bestLocation.getLongitude());
+            locationEvent.putExtra(Locations_Data.BEARING, bestLocation.getBearing());
+            locationEvent.putExtra(Locations_Data.SPEED, bestLocation.getSpeed());
+            locationEvent.putExtra(Locations_Data.ALTITUDE, bestLocation.getAltitude());
+            locationEvent.putExtra(Locations_Data.PROVIDER, bestLocation.getProvider());
+            locationEvent.putExtra(Locations_Data.ACCURACY, bestLocation.getAccuracy());
             sendBroadcast(locationEvent);
         }
     }
