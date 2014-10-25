@@ -1,1 +1,1 @@
-include ':Google_ActivityRecognition', ':Weather'
+include ':Google_ActivityRecognition', ':Weather', ':Google_FusedLocation'

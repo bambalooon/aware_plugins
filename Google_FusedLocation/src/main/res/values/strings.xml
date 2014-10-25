@@ -1,0 +1,10 @@
+<resources>
+
+    <string name="app_name">Google Fused Location</string>
+    <string-array name="accuracies">
+        <item >Balanced</item>
+        <item >Intense</item>
+        <item >Low</item>
+    </string-array>
+
+</resources>

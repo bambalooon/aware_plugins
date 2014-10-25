@@ -1,0 +1,41 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.aware.plugin.google.fused_location"
+          android:versionCode="2"
+          android:versionName="2.0">
+
+    <uses-sdk
+            android:minSdkVersion="9"
+            android:targetSdkVersion="17"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.aware.READ_CONTEXT_DATA"/>
+    <uses-permission android:name="com.aware.WRITE_CONTEXT_DATA"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <application
+            android:allowBackup="true"
+            android:icon="@drawable/ic_launcher_aware"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme">
+        <meta-data
+                android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version"/>
+
+        <service
+                android:exported="true"
+                android:name="Plugin"></service>
+        <service
+                android:name="Algorithm"
+                android:exported="true"
+                android:label="@string/app_name"></service>
+
+        <activity
+                android:launchMode="singleInstance"
+                android:name="Settings"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:exported="true"
+                android:theme="@android:style/Theme.Dialog"></activity>
+    </application>
+
+</manifest>
