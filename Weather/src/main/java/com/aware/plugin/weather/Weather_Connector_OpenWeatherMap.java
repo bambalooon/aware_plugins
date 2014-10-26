@@ -677,6 +677,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
         notification.putExtra(WeatherCurrent.WIND_ANGLE, weather.getWindAngle());
         notification.putExtra(WeatherCurrent.RAIN, weather.getRain());
         notification.putExtra(WeatherCurrent.WEATHER_PROVIDER, Weather_Connector_OpenWeatherMap.WEATHER_AUTHORITY);
+        notification.putExtra(WeatherCurrent.WEATHER_NAME, weather.getWeatherDescriptions());
         return notification;
     }
 
@@ -721,7 +722,7 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 		String[] params = new String[4];
 		
 		for(int i=0;i<latitudeList.length;i++) {
-			params[0] = "http://api.openweathermap.org/data/2.5/weather?lat=" + latitudeList[i] + "&lon=" + longitudeList[i] + "&units=imperial&mode=json";
+			params[0] = "http://api.openweathermap.org/data/2.5/weather?lat=" + latitudeList[i] + "&lon=" + longitudeList[i] + "&units=metric&mode=json";
 			params[1] = "" + latitudeList[i];
 			params[2] = "" + longitudeList[i];
             params[3] = "" + lastQuery;
