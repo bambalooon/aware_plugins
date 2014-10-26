@@ -98,9 +98,6 @@ public class Google_AR_Provider extends ContentProvider {
                     count = database.delete(DATABASE_TABLES[0], selection,
                             selectionArgs);
                 } finally {
-                    if(database.inTransaction()) {
-                        database.endTransaction();
-                    }
                     database.close();
                 }
                 break;
@@ -151,9 +148,6 @@ public class Google_AR_Provider extends ContentProvider {
                         return new_uri;
                     }
                 } finally {
-                    if(database.inTransaction()) {
-                        database.endTransaction();
-                    }
                     database.close();
                 }
                 throw new SQLException("Failed to insert row into " + uri);
@@ -224,11 +218,6 @@ public class Google_AR_Provider extends ContentProvider {
                 Log.e(Aware.TAG, e.getMessage());
 
             return null;
-        } finally {
-            if(database.inTransaction()) {
-                database.endTransaction();
-            }
-            database.close();
         }
     }
 
@@ -247,9 +236,6 @@ public class Google_AR_Provider extends ContentProvider {
                     count = database.update(DATABASE_TABLES[0], values, selection,
                             selectionArgs);
                 } finally {
-                    if(database.inTransaction()) {
-                        database.endTransaction();
-                    }
                     database.close();
                 }
                 break;
