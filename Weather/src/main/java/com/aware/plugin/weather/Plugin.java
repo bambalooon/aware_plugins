@@ -162,14 +162,6 @@ public class Plugin extends Aware_Plugin {
         WeatherCollector = new Weather_Connector_OpenWeatherMap(true, true, true, this, deviceID);
         weatherPlaces = new Weather_Places(this);
 
-        Aware.setSetting(contentResolver, Aware_Preferences.STATUS_LOCATION_NETWORK, true);
-        Aware.setSetting(contentResolver, Aware_Preferences.FREQUENCY_NETWORK, 300);
-        Aware.setSetting(contentResolver, Aware_Preferences.MIN_NETWORK_ACCURACY, 1500);
-        Aware.setSetting(contentResolver, Aware_Preferences.EXPIRATION_TIME, 300);
-
-        Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
-        sendBroadcast(applySettings);
-
         startWeatherUpdateTimers();
 
         IntentFilter networkChangeIntent = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
@@ -181,11 +173,6 @@ public class Plugin extends Aware_Plugin {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        Aware.setSetting(getContentResolver(), Aware_Preferences.STATUS_LOCATION_NETWORK, false);
-
-        Intent applySettings = new Intent(Aware.ACTION_AWARE_REFRESH);
-        sendBroadcast(applySettings);
 
         this._currentTimer.cancel();
         this._5DayTimer.cancel();
