@@ -94,12 +94,8 @@ public class Google_AR_Provider extends ContentProvider {
         int count = 0;
         switch (sUriMatcher.match(uri)) {
             case GOOGLE_AR:
-                try {
-                    count = database.delete(DATABASE_TABLES[0], selection,
-                            selectionArgs);
-                } finally {
-                    database.close();
-                }
+                count = database.delete(DATABASE_TABLES[0], selection,
+                        selectionArgs);
                 break;
             default:
 
@@ -135,20 +131,16 @@ public class Google_AR_Provider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case GOOGLE_AR:
-                try {
-                    long google_AR_id = database.insert(DATABASE_TABLES[0],
-                            Google_Activity_Recognition_Data.ACTIVITY_NAME, values);
+                long google_AR_id = database.insert(DATABASE_TABLES[0],
+                        Google_Activity_Recognition_Data.ACTIVITY_NAME, values);
 
-                    if (google_AR_id > 0) {
-                        Uri new_uri = ContentUris.withAppendedId(
-                                Google_Activity_Recognition_Data.CONTENT_URI,
-                                google_AR_id);
-                        getContext().getContentResolver().notifyChange(new_uri,
-                                null);
-                        return new_uri;
-                    }
-                } finally {
-                    database.close();
+                if (google_AR_id > 0) {
+                    Uri new_uri = ContentUris.withAppendedId(
+                            Google_Activity_Recognition_Data.CONTENT_URI,
+                            google_AR_id);
+                    getContext().getContentResolver().notifyChange(new_uri,
+                            null);
+                    return new_uri;
                 }
                 throw new SQLException("Failed to insert row into " + uri);
             default:
@@ -232,12 +224,8 @@ public class Google_AR_Provider extends ContentProvider {
         int count = 0;
         switch (sUriMatcher.match(uri)) {
             case GOOGLE_AR:
-                try {
-                    count = database.update(DATABASE_TABLES[0], values, selection,
-                            selectionArgs);
-                } finally {
-                    database.close();
-                }
+                count = database.update(DATABASE_TABLES[0], values, selection,
+                        selectionArgs);
                 break;
             default:
 
