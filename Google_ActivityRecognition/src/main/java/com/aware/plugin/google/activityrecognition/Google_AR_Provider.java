@@ -189,7 +189,7 @@ public class Google_AR_Provider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
         if (database == null || !database.isOpen())
-            database = databaseHelper.getWritableDatabase();
+            database = databaseHelper.getReadableDatabase();
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         switch (sUriMatcher.match(uri)) {

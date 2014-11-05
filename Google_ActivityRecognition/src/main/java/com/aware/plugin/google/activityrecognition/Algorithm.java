@@ -64,6 +64,11 @@ public class Algorithm extends IntentService {
             Plugin.current_activity = mostProbable.getType();
             String activity_name = getActivityName(Plugin.current_activity);
 
+            Intent context = new Intent( Plugin.ACTION_AWARE_GOOGLE_ACTIVITY_RECOGNITION );
+            context.putExtra( Plugin.EXTRA_ACTIVITY, activity_name);
+            context.putExtra( Plugin.EXTRA_CONFIDENCE, Plugin.current_confidence );
+            sendBroadcast( context );
+
             ContentValues data = new ContentValues();
             data.put(Google_Activity_Recognition_Data.TIMESTAMP, System.currentTimeMillis());
             data.put(Google_Activity_Recognition_Data.DEVICE_ID, Aware.getSetting(getContentResolver(), Aware_Preferences.DEVICE_ID));
@@ -77,11 +82,6 @@ public class Algorithm extends IntentService {
             if (DEBUG) {
             	Log.d(TAG, "User is: " + activity_name + " (conf:" + Plugin.current_confidence + ")");
             }
-
-            Intent context = new Intent( Plugin.ACTION_AWARE_GOOGLE_ACTIVITY_RECOGNITION );
-            context.putExtra( Plugin.EXTRA_ACTIVITY, Plugin.current_activity );
-            context.putExtra( Plugin.EXTRA_CONFIDENCE, Plugin.current_confidence );
-            sendBroadcast( context );
         }
     }
 
