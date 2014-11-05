@@ -11,7 +11,9 @@ See the GNU General Public License for more details: http://www.gnu.org/licenses
 package com.aware.plugin.google.fused_location;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -105,7 +107,7 @@ public class Plugin extends Aware_Sensor implements ConnectionCallbacks, OnConne
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if( ! mLocationClient.isConnected() ) mLocationClient.connect();
-        
+
         if( mLocationRequest.getPriority() != Integer.parseInt(Aware.getSetting(getContentResolver(), Settings.ACCURACY_GOOGLE_FUSED_LOCATION)) 
         || mLocationRequest.getInterval() !=  Long.parseLong(Aware.getSetting(getContentResolver(), Settings.FREQUENCY_GOOGLE_FUSED_LOCATION))
         || mLocationRequest.getFastestInterval() != Long.parseLong(Aware.getSetting(getContentResolver(), Settings.MAX_FREQUENCY_GOOGLE_FUSED_LOCATION))
@@ -114,7 +116,13 @@ public class Plugin extends Aware_Sensor implements ConnectionCallbacks, OnConne
             mLocationRequest.setInterval(Long.parseLong(Aware.getSetting(getContentResolver(), Settings.FREQUENCY_GOOGLE_FUSED_LOCATION)) * 1000);
             mLocationRequest.setFastestInterval(Long.parseLong(Aware.getSetting(getContentResolver(), Settings.MAX_FREQUENCY_GOOGLE_FUSED_LOCATION)) * 1000);
         }
-        
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        final boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        final boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        Log.d(TAG, "Gps enabled: "+gpsEnabled);
+        Log.d(TAG, "Network navi enabled: "+networkEnabled);
+
         return super.onStartCommand(intent, flags, startId);
     }
     

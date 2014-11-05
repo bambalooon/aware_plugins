@@ -22,12 +22,21 @@ public class Algorithm extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        
         boolean DEBUG = Aware.getSetting(getContentResolver(), Aware_Preferences.DEBUG_FLAG).equals("true");
         
         if( intent != null && intent.hasExtra(LocationClient.KEY_LOCATION_CHANGED ) ) {
         
             Location bestLocation = (Location) intent.getExtras().get(LocationClient.KEY_LOCATION_CHANGED);
+
+            Intent locationEvent = new Intent(Plugin.ACTION_AWARE_LOCATIONS);
+            locationEvent.putExtra(Locations_Data.TIMESTAMP, System.currentTimeMillis());
+            locationEvent.putExtra(Locations_Data.LATITUDE, bestLocation.getLatitude());
+            locationEvent.putExtra(Locations_Data.LONGITUDE, bestLocation.getLongitude());
+            locationEvent.putExtra(Locations_Data.BEARING, bestLocation.getBearing());
+            locationEvent.putExtra(Locations_Data.SPEED, bestLocation.getSpeed());
+            locationEvent.putExtra(Locations_Data.ALTITUDE, bestLocation.getAltitude());
+            locationEvent.putExtra(Locations_Data.ACCURACY, bestLocation.getAccuracy());
+            sendBroadcast(locationEvent);
             
             ContentValues rowData = new ContentValues();
             rowData.put(Locations_Data.TIMESTAMP, System.currentTimeMillis());
@@ -39,20 +48,10 @@ public class Algorithm extends IntentService {
             rowData.put(Locations_Data.ALTITUDE, bestLocation.getAltitude());
             rowData.put(Locations_Data.PROVIDER, bestLocation.getProvider());
             rowData.put(Locations_Data.ACCURACY, bestLocation.getAccuracy());
-            
+
             getContentResolver().insert(Locations_Data.CONTENT_URI, rowData);
             
             if( DEBUG ) Log.d("AWARE::Google Fused Location", "Fused location:" + rowData.toString());
-            
-            Intent locationEvent = new Intent(Plugin.ACTION_AWARE_LOCATIONS);
-            locationEvent.putExtra(Locations_Data.TIMESTAMP, System.currentTimeMillis());
-            locationEvent.putExtra(Locations_Data.LATITUDE, bestLocation.getLatitude());
-            locationEvent.putExtra(Locations_Data.LONGITUDE, bestLocation.getLongitude());
-            locationEvent.putExtra(Locations_Data.BEARING, bestLocation.getBearing());
-            locationEvent.putExtra(Locations_Data.SPEED, bestLocation.getSpeed());
-            locationEvent.putExtra(Locations_Data.ALTITUDE, bestLocation.getAltitude());
-            locationEvent.putExtra(Locations_Data.ACCURACY, bestLocation.getAccuracy());
-            sendBroadcast(locationEvent);
         }
     }
 }
