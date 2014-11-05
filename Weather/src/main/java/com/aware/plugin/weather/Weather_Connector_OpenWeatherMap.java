@@ -623,6 +623,8 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 			}
 		}
 
+        Vector<Integer> weatherCode = new Vector<Integer>(0,1);
+        Vector<String> weatherMain = new Vector<String>(0,1);
         Vector<String> weatherDescriptions = new Vector<String>(0,1);
 
 		if(weather != null) {
@@ -635,6 +637,8 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 //					e.printStackTrace();
 				}					
 				try {
+                    weatherCode.add(tmp.getInt("id"));
+                    weatherMain.add(tmp.getString("main"));
 					weatherDescriptions.add(tmp.getString("description"));
 				} catch (JSONException e) {
 //					e.printStackTrace();
