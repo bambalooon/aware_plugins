@@ -436,7 +436,7 @@ public class Weather_Provider extends ContentProvider {
         public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
                 
-	        if( database == null || ! database.isOpen()) database = databaseHelper.getWritableDatabase();
+	        if( database == null || ! database.isOpen()) database = databaseHelper.getReadableDatabase();
 	        
 	        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 	        switch (uriMatcher.match(uri)) {

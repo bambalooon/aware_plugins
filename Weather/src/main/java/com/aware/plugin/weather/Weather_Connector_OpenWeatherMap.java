@@ -622,9 +622,9 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 //				e.printStackTrace();
 			}
 		}
-		
-		Vector<String> weatherDescriptions = new Vector<String>(0,1);
-		
+
+        Vector<String> weatherDescriptions = new Vector<String>(0,1);
+
 		if(weather != null) {
 			JSONObject tmp = null;
 			
@@ -640,17 +640,15 @@ public class Weather_Connector_OpenWeatherMap implements Weather_Connector {
 //					e.printStackTrace();
 				} 
 			}
-		}						
+		}
 		currentWeather.setWeatherDescriptions(weatherDescriptions);
-				
-		
-		appContext.getContentResolver().insert(WeatherCurrent.CONTENT_URI, currentWeather.getContentValues());
+
         appContext.sendBroadcast(generateWeatherNotification(currentWeather));
-        lastCurrentWeatherCall = new Date().getTime();
         Log.d(Plugin.TAG, Plugin.ACTION_AWARE_WEATHER+": CurrentWeather Notification");
 
+        appContext.getContentResolver().insert(WeatherCurrent.CONTENT_URI, currentWeather.getContentValues());
+        lastCurrentWeatherCall = new Date().getTime();
 //		Log.e("Weather Plugin","Weather Information Saved");
-			
 	}
 
     private Intent generateWeatherNotification(WeatherInformation weather) {
